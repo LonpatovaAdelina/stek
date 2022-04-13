@@ -1,0 +1,117 @@
+#include <iostream>
+#include<string>  
+using namespace std;
+
+struct task
+{
+	char value; /// информационное поле стека
+	task* next = nullptr; /// адресное поле стека
+	int num;
+};
+
+//добавление  элемента 
+void push(task*& stack, char value,int num) {
+
+	//Создание нового элемента для размещения в стеке
+	task* newt = new task;
+	newt->value = value;
+	newt->num = num;
+	if (!stack) { //если пустой
+		stack = newt;  //Новый элемент будет первым
+		return;
+	}
+
+	//Стек уже существует. Новый элемент размещается на вершине
+	newt->next = stack;
+	stack = newt;
+}
+
+//извлечь (последний) элемент 
+bool pop(task*& stack,  int& num) {
+
+	if (!stack) {
+		return false;
+	}
+
+	task* newt = stack; // Сохраняем ссылку на вершину
+	//value = stack->value; // и значение, хранимое в верхнем элементе*/
+	num = stack->num;
+	stack = stack->next; // Смещаем указатель на новую вершину
+	delete newt;
+	return true;
+}
+
+//получение значения элемента с вершины стека
+char* peek(task* stack) {
+	if (!stack) return nullptr;
+	return &stack->value;
+}
+
+void clear(task*& stack) {
+	while (stack)// Удаляем все элементы стека
+	{
+		task* newt = stack;
+		stack = stack->next;
+		delete newt;
+	}
+}
+
+int main() {
+	task* stack = nullptr;
+
+	setlocale(LC_ALL, "ru");
+
+	string t;;
+	cin >> t;
+
+	char open[5];
+	char close[5];
+
+	open[1] = '(';
+	open[2] = '[';
+	open[3] = '{';
+	open[4] = '<';
+
+	close[1] = ')';
+	close[2] = ']';
+	close[3] = '}';
+	close[4] = '>';
+	
+	bool tf = false;
+	int n;
+	for (int i = 0; i < t.size(); i++) {
+		int sk = 0;
+		for (int c = 1; c < 5; c++) {
+			if (t[i] == close[c])      //проверка на закр-ся скобку
+				sk = c;
+		}
+		if (sk == 0) {
+			for (int o = 1; o < 5; o++) {
+				if (t[i] == open[o])     //проверка на откр-ся скобку
+					sk = o;
+			}
+			if (sk != 0)
+				push(stack, t[i],i);
+		}
+		else {
+			if (stack && open[sk] == *peek(stack)) {
+				pop(stack,n);
+			}
+			else {
+				tf = true;
+				n = i + 1;
+				break;
+			}
+		}
+	}
+	if (stack) {
+		while (stack) {
+			pop(stack, n);
+			cout << n << " ";
+		}
+		tf = true;
+	}
+
+	if (tf || peek(stack))    cout << "Выражение неверно. Проверьте правильность написания скобоки на месте " ;
+	else    cout << "Выражение верно.";
+}
